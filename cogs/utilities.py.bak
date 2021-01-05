@@ -1,0 +1,146 @@
+import discord
+from discord.ext import commands
+import traceback
+import googletrans
+import requests
+import json
+
+class Utilities(commands.Cog):
+    """Useful Utilities"""
+
+    def __init__(self,client):
+        self.client = client
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        await self.client.change_presence(activity=discord.Game(name='Say yes to bruhRoo'))
+        print(f'[LOGS] : {self.client.user} has connected to Discord!')
+    
+    @commands.command(help="Returns how long it takes to ping Discord")
+    async def ping(self,ctx):
+        await ctx.send(f'Took `{round(self.client.latency * 1000)}` milliseconds to reach you, sir!')
+
+    @commands.command(pass_context=True)
+    @commands.has_permissions(add_reactions=True,embed_links=True)
+    async def help(self,ctx,*cog):
+        """Gets all cogs and commands of mine."""
+        try:
+            if not cog:
+                """Cog listing.  What more?"""
+                halp=discord.Embed(title='Senpai Help Command',
+                                description='Use `senpai help *category*` to find out more about them!\n')
+                cogs_desc = ''
+                for x in self.client.cogs:
+                    cogs_desc += ('{} - {}'.format(x,self.client.cogs[x].__doc__)+'\n')
+                halp.add_field(name='Categories',value=cogs_desc[0:len(cogs_desc)-1],inline=False)
+                cmds_desc = ''
+                for y in self.client.walk_commands():
+                    if not y.cog_name and not y.hidden:
+                        cmds_desc += ('{} - {}'.format(y.name,y.help)+'\n')
+                halp.add_field(name='Uncatergorized Commands',value=cmds_desc[0:len(cmds_desc)-1],inline=False)
+                await ctx.send('',embed=halp)
+            else:
+                """Helps me remind you if you pass too many args."""
+                if len(cog) > 1:
+                    halp = discord.Embed(title='Error!',description="You passed in too many parameters",color=discord.Color.red())
+                    await ctx.send('',embed=halp)
+                else:
+                    """Command listing within a cog."""
+                    found = False
+                    for x in self.client.cogs:
+                        for y in cog:
+                            if x == y:
+                                print(cog[0])
+                                halp=discord.Embed(title=cog[0]+' Command Listing',description=self.client.cogs[cog[0]].__doc__)
+                                for c in self.client.get_cog(y).get_commands():
+                                    if not c.hidden:
+                                        halp.add_field(name=c.name,value=c.help,inline=False)
+                                found = True
+                    if not found:
+                        """Reminds you if that cog doesn't exist."""
+                        halp = discord.Embed(title='Error!',description='That category does not exist',color=discord.Color.red())
+                    else:
+                        await ctx.send('',embed=halp)
+        except OSError:
+            print("how")
+    
+    @commands.command()
+    async def translate(self, ctx, dstLang, *, string):
+        """Translate using Google Translate API
+        
+        Syntax :
+        `senpai translate {destination_language} {string to be translated}`
+
+        Example :
+        `senpai translate en ありがとう`
+        would translate ありがとう to English"""
+        
+
+    
+
+        translator = googletrans.Translator()
+        translated = translator.translate(string, dest=dstLang)
+        print(googletrans.LANGUAGES)
+        embed=discord.Embed(title="__Senpai Translate__", color=0xeea4f2 )
+        embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/737287669687779428/738337344482050098/language.png")
+        embed.add_field(name="Detected Language :", value=(googletrans.LANGUAGES[(translated.src).lower()]).capitalize(), inline=True)
+        embed.add_field(name="Translated Language :", value=(googletrans.LANGUAGES[(translated.dest).lower()]).capitalize(), inline=True)
+        embed.add_field(name="Original :", value=string, inline=False)
+        embed.add_field(name="Translated : ", value=translated.text, inline=True)
+        if translated.pronunciation != None:
+            if string != translated.pronunciation:
+                embed.set_footer(text="Pronunciation : " + translated.pronunciation)
+        await ctx.send("",embed=embed)
+
+    @commands.command()
+    async def dsindex(self, ctx, *,category=None):
+        
+        counter = 0
+        firstNumber = None
+        x = requests.get("https://raw.githubusercontent.com/NightYoshi370/nightyoshi370.github.io/master/pages/modding/ds-index.md").content
+        with open("modding.txt", "wb") as theFile:
+            theFile.write(x)
+        with open("modding.txt","r",errors="ignore") as theFile:
+            data = theFile.readlines()
+
+        for string in data:
+            if string.lower().rstrip("\n") ==("### "+category).lower():
+                hashNumber = 3
+                firstNumber = data.index(string)
+                break
+            elif string.lower().rstrip("\n")==("#### "+category).lower():
+                hashNumber = 4
+                firstNumber = data.index(string)
+                break
+            else:
+                continue
+        if firstNumber == None:
+            await ctx.send("Could not find `"+category+"` in NightScript's DS Modding index")
+            return   
+        counter = firstNumber + 1
+        embed=discord.Embed(title="__NightScript's DS Modding index__", color=0xeea4f2 )
+        fullText = ""
+        if hashNumber == 3:
+            while True:
+                if data[counter].startswith("### "):
+                    break
+                fullText = fullText + data[counter]
+                counter = counter + 1
+        if hashNumber == 4:
+            while True:
+                if data[counter].startswith("### ") or data[counter].startswith("#### "):
+                    break
+                fullText = fullText + data[counter]
+                counter = counter + 1
+        embed.add_field(name=data[firstNumber], value=fullText, inline=False)
+        embed.set_footer(text="Credits to NightScript, RocketRobz and DeadSkullzJr for this guide")
+        await ctx.send("",embed=embed)
+
+        
+
+    
+
+    
+            
+def setup(client):
+    client.add_cog(Utilities(client))
