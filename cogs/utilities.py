@@ -8,7 +8,7 @@ import json
 import gpiozero
 import os
 translator = google_trans_new.google_translator()
-
+import urllib
 class Utilities(commands.Cog):
     """Useful Utilities"""
 
@@ -102,6 +102,11 @@ class Utilities(commands.Cog):
             if string != translated[2]:
                 embed.set_footer(text="Pronunciation : " + translated[2])
         await ctx.send("",embed=embed)
+
+    @commands.command()
+    async def google(self, ctx, *,string):
+        await ctx.send("<http://letmegooglethat.com/?q="+urllib.parse.quote(str(string))+">")
+        return
 
     @commands.command()
     async def dsindex(self, ctx, *,category=None):
