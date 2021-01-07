@@ -6,7 +6,8 @@ import requests
 import os
 import traceback
 import time
-
+from cogs.databases import check_blacklist, create_connection
+database = os.getcwd()+r"/db/database.db"
 supportedImage = [".bmp", ".gif", ".gif87", ".ico",
     ".icon", ".jpe", ".jpeg", ".jpg", ".jps", ".png"]
 
@@ -16,6 +17,7 @@ class Convert(commands.Cog):
 
     def __init__(self, client):
         self.client = client
+        self.conn = create_connection(database)
 
     @commands.group()
     async def convert(self, ctx):
@@ -47,12 +49,16 @@ class Convert(commands.Cog):
 
         
         """
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         if ctx.invoked_subcommand is None:
             await ctx.send("That's not a valid `convert` command, sir")
             await ctx.send("Maybe you meant `senpai convert unlaunchbg` ?")
 
     @convert.command()
     async def unlaunchbg(self, ctx, filelink=None):
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         supported = False
         if filelink is None:
             if ctx.message.attachments:
@@ -159,7 +165,8 @@ class Convert(commands.Cog):
     
     @convert.command()
     async def bmp(self, ctx, filelink=None):
-
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         supported = False
         if filelink is None:
             if ctx.message.attachments:
@@ -217,7 +224,8 @@ class Convert(commands.Cog):
 
     @convert.command()
     async def png(self, ctx, filelink=None):
-
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         supported = False
         if filelink is None:
             if ctx.message.attachments:
@@ -272,7 +280,8 @@ class Convert(commands.Cog):
 
     @convert.command()
     async def gif(self, ctx, filelink=None):
-
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         supported = False
         if filelink is None:
             if ctx.message.attachments:
@@ -327,7 +336,8 @@ class Convert(commands.Cog):
 
     @convert.command()
     async def jpeg(self, ctx, filelink=None):
-
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         supported = False
         if filelink is None:
             if ctx.message.attachments:
@@ -382,13 +392,15 @@ class Convert(commands.Cog):
     
     @convert.group()
     async def boxart(self, ctx):
-        
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         if ctx.invoked_subcommand is None:
             await ctx.send("That's not a valid `convert boxart` command, sir")
 
     @boxart.command(aliases=["nds","dsi"])
     async def ds(self, ctx, filelink=None):
-
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         supported = False
         if filelink is None:
             if ctx.message.attachments:
@@ -448,7 +460,8 @@ class Convert(commands.Cog):
 
     @boxart.command(aliases=["fds","gbc","gb"])
     async def gba(self, ctx, filelink=None):
-
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         supported = False
         if filelink is None:
             if ctx.message.attachments:
@@ -506,7 +519,8 @@ class Convert(commands.Cog):
 
     @boxart.command(aliases=["gen","md","sfc","ms","gg"])
     async def nes(self, ctx, filelink=None):
-
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         supported = False
         if filelink is None:
             if ctx.message.attachments:
@@ -565,7 +579,8 @@ class Convert(commands.Cog):
     
     @boxart.command()
     async def snes(self, ctx, filelink=None):
-
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         supported = False
         if filelink is None:
             if ctx.message.attachments:
@@ -624,6 +639,8 @@ class Convert(commands.Cog):
     
     @convert.command()
     async def dsimenu(self,ctx,filelink=None):
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         supported = False
         if filelink is None:
             if ctx.message.attachments:
@@ -691,6 +708,8 @@ class Convert(commands.Cog):
         
     @convert.command()
     async def dsmp4(self,ctx,filelink=None):
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         supported = False
         if filelink is None:
             if ctx.message.attachments:

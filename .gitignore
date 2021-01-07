@@ -7,3 +7,5 @@ cogs/__pycache__/
 *.py.bak
 *.py.old
 *.pyc
+db/database.db
+.env

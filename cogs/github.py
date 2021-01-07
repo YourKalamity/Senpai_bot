@@ -3,21 +3,30 @@ from discord.ext import commands
 import traceback
 import requests
 import json
+import os
+from cogs.databases import check_blacklist, create_connection
+database = os.getcwd()+r"/db/database.db"
+
 
 class GitHub(commands.Cog):
     """Useful Commands for use with GitHub API"""
 
     def __init__(self,client):
         self.client = client
-    
+        self.conn = create_connection(database)
+        
     @commands.group()
     async def github(self, ctx):
         """Collection of commands used for GitHub"""
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         if ctx.invoked_subcommand is None:
             await ctx.send("That's not a valid `github` command")
 
     @github.command()
     async def info(self, ctx, repo):
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         try:
 
             if repo[0][:1] == "/":
@@ -42,6 +51,8 @@ class GitHub(commands.Cog):
     
     @github.command()
     async def latest(self, ctx, repo):
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         try:
             if repo[0][:1] == "/":
                 repo = repo[1:]
@@ -59,6 +70,8 @@ class GitHub(commands.Cog):
 
     @github.command()
     async def user(self, ctx, username):
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         try:
             
 

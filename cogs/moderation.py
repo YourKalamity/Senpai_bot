@@ -1,15 +1,21 @@
 import discord
 from discord.ext import commands
+import os
+from cogs.databases import check_blacklist, create_connection
+database = os.getcwd()+r"/db/database.db"
 
 class Moderation(commands.Cog):
     """Tools for moderation"""
 
     def __init__(self,client):
         self.client = client
+        self.conn = create_connection(database)
 
     @commands.command()
     @commands.has_permissions(manage_messages=True)
     async def clear(self, ctx, amount=2):
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         await ctx.channel.purge(limit=amount)
     
     # @commands.command()

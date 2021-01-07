@@ -2,6 +2,7 @@ certifi
 chardet
 discord
 discord.py
+dotenv
 giphypop
 google-trans-new
 googletrans

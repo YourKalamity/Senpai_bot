@@ -9,11 +9,16 @@ import gpiozero
 import os
 translator = google_trans_new.google_translator()
 import urllib
+from cogs.databases import check_blacklist, create_connection
+database = os.getcwd()+r"/db/database.db"
+
+
 class Utilities(commands.Cog):
     """Useful Utilities"""
 
     def __init__(self,client):
         self.client = client
+        self.conn = create_connection(database)
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -22,11 +27,15 @@ class Utilities(commands.Cog):
     
     @commands.command(help="Returns how long it takes to ping Discord")
     async def ping(self,ctx):
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         await ctx.send(f'Took `{round(self.client.latency * 1000)}` milliseconds to reach you, sir!')
 
     @commands.command(pass_context=True)
     @commands.has_permissions(add_reactions=True,embed_links=True)
     async def help(self,ctx,*cog):
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         """Gets all cogs and commands of mine."""
         try:
             if not cog:
@@ -81,6 +90,8 @@ class Utilities(commands.Cog):
         `senpai translate English ありがとう`
         would translate ありがとう to English"""
         
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         detected_language = (translator.detect(string))[0]
 
         dstLang = dstLang.lower()
@@ -105,11 +116,15 @@ class Utilities(commands.Cog):
 
     @commands.command()
     async def google(self, ctx, *,string):
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         await ctx.send("<http://letmegooglethat.com/?q="+urllib.parse.quote(str(string))+">")
         return
 
     @commands.command()
     async def dsindex(self, ctx, *,category=None):
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         if category == None:
             embed=discord.Embed(title="__NightScript's DS Modding index__", color=0xeea4f2 )
             text = """ 
@@ -198,6 +213,8 @@ Original Guide : https://nightyoshi370.github.io/modding/ds-index""")
 
     @commands.command()
     async def host(self, ctx):
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         """List details about the server I am being hosted on"""
         embed=discord.Embed(title="Senpai's Host Machine Info", color=0xeea4f2)
         embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/737287669687779428/738732946189713469/6edea84dffc69d2c190c427be484143c.png")
@@ -212,6 +229,9 @@ Original Guide : https://nightyoshi370.github.io/modding/ds-index""")
     
     @commands.command()
     async def removebg(self, ctx, image_link=None):
+
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
 
         if image_link is None:
             if ctx.message.attachments:

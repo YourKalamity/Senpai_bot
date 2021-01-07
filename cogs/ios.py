@@ -2,28 +2,35 @@ import discord
 from discord.ext import commands
 import requests
 import urllib.parse
+import os
 import json
-
+from cogs.databases import check_blacklist, create_connection
+database = os.getcwd()+r"/db/database.db"
 
 class Ios(commands.Cog):
     """iOS related commands"""
 
     def __init__(self, client):
         self.client = client
+        self.conn = create_connection(database)
 
     @commands.group()
     async def ios(self, ctx):
         """iOS related commands!"""
-    
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
+
     @ios.command()
     async def jailbreak(self, ctx, *, phone_model):
-
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         phone_model = phone_model.replace(" ","-")
-
         return await ctx.send("https://iOS.cfw.guide/firmware-selection-("+phone_model+")")
 
     @ios.command()
     async def tweak(self,ctx,*,tweak_name):
+        if check_blacklist(self.conn, ctx.author.id) != None:
+            return
         search_term = urllib.parse.quote(tweak_name)
         string = "https://api.parcility.co/db/search?q="+search_term
         info = json.loads(requests.get(string).content)

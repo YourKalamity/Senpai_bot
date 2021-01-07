@@ -2,11 +2,13 @@ import os
 import discord
 from discord.ext import commands
 import sys
+from dotenv import Dotenv
 
 
 theOwner = 194852876902727680
 client = commands.AutoShardedBot(command_prefix = ['senpai ','Senpai ','s!'])
-token = "NDI4MjcxNzc5MzA4NjM0MTMy.WrqZLQ.8On8oZ9QXjJEek8wXnoOK-jPqHA"
+temp = Dotenv(".env")
+token = str(temp["DISCORD_TOKEN"])
 important_directories = ["ns-ds-index","cogs","downloads"]
 
 client.remove_command('help')
