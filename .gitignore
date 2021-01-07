@@ -1,0 +1,9 @@
+.vscode/
+downloads/
+ns-ds-index/
+modding.txt
+cogs/__pycache__/
+*.py.swp
+*.py.bak
+*.py.old
+*.pyc

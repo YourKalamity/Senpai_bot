@@ -7,6 +7,7 @@ import sys
 theOwner = 194852876902727680
 client = commands.AutoShardedBot(command_prefix = ['senpai ','Senpai ','s!'])
 token = "NDI4MjcxNzc5MzA4NjM0MTMy.WrqZLQ.8On8oZ9QXjJEek8wXnoOK-jPqHA"
+important_directories = ["ns-ds-index","cogs","downloads"]
 
 client.remove_command('help')
 
@@ -90,7 +91,13 @@ async def reload(ctx, extension):
 print("")
 print("Welcome to YourKalamity's Discord Bot!")
 print("")
+os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
 print("")
+print("[LOGS] : Checking for folders...")
+for x in important_directories:
+    if os.path.exists(x) != True:
+        print("[LOGS] : Creating folder `"+x+"`")
+        os.mkdir(x)
 print("[LOGS] : Connecting to Discord...")
 for filename in os.listdir('./cogs'):
     if filename.endswith('.py'):

@@ -1,0 +1,17 @@
+certifi
+chardet
+discord
+discord.py
+giphypop
+google-trans-new
+googletrans
+gpiozero
+jishaku
+MemePy
+numpy
+requests
+RPi.GPIO
+urllib3
+webencodings
+zalgo-text
+sqlite3
