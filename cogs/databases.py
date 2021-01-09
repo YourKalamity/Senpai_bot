@@ -56,8 +56,24 @@ class Database(commands.Cog):
             else:
                 await ctx.send(member.name + " is not on the blacklist")
 
+    @commands.command()
+    async def sql(self,ctx,*,command):
+        if ctx.author.id == theOwner:
+            if command.startswith("```SQL"):
+                command = (command[6:-3])
+            rows = run_sql_query(self.conn,command)
+            return_value="```\n"
+            for row in rows:
+                return_value = return_value + str(row) + "\n"
+            return_value = return_value + "```"
+            await ctx.send(return_value)
+            return
+
+            
+
 def setup(client):
     client.add_cog(Database(client))
+
 
 def create_connection(db_file):
     conn = None
@@ -66,6 +82,13 @@ def create_connection(db_file):
     except sqlite3.Error as e:
         print(e)
     return conn
+
+def run_sql_query(conn,command):
+    cur = conn.cursor()
+    cur.execute(command)
+    rows=cur.fetchall()
+    conn.commit()
+    return rows
 
 def create_table(conn, create_table_sql):
     try:
@@ -95,6 +118,11 @@ def check_blacklist(conn,user_id):
     cur = conn.cursor()
     cur.execute(sql,(user_id,))
     rows = cur.fetchall()
-
     for row in rows:
         return row
+
+def add_command_to_log(conn,ctx):
+    sql = """ INSERT INTO commandlogs(command,user_id,server_id,channel_id,date_ran) VALUES(?,?,?,?,?)"""
+    cur = conn.cursor()
+    cur.execute(sql,(ctx.message.content,ctx.author.id,ctx.guild.id,ctx.channel.id,ctx.message.created_at))
+    conn.commit()

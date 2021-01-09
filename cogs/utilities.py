@@ -7,10 +7,13 @@ import requests
 import json
 import gpiozero
 import os
+import time
 translator = google_trans_new.google_translator()
 import urllib
-from cogs.databases import check_blacklist, create_connection
+from cogs.databases import check_blacklist, create_connection, add_command_to_log
+import asyncio
 database = os.getcwd()+r"/db/database.db"
+
 
 
 class Utilities(commands.Cog):
@@ -24,6 +27,10 @@ class Utilities(commands.Cog):
     async def on_ready(self):
         await self.client.change_presence(activity=discord.Game(name='Say yes to bruhRoo'))
         print(f'[LOGS] : {self.client.user} has connected to Discord!')
+
+    @commands.Cog.listener()
+    async def on_command(self,ctx):
+        add_command_to_log(self.conn, ctx)
     
     @commands.command(help="Returns how long it takes to ping Discord")
     async def ping(self,ctx):
@@ -31,54 +38,65 @@ class Utilities(commands.Cog):
             return
         await ctx.send(f'Took `{round(self.client.latency * 1000)}` milliseconds to reach you, sir!')
 
-    @commands.command(pass_context=True)
+    @commands.command()
     @commands.has_permissions(add_reactions=True,embed_links=True)
-    async def help(self,ctx,*cog):
+    async def help(self,ctx,*,pageNumber=None):
         if check_blacklist(self.conn, ctx.author.id) != None:
             return
-        """Gets all cogs and commands of mine."""
-        try:
-            if not cog:
-                """Cog listing.  What more?"""
-                halp=discord.Embed(title='Senpai Help Command',
-                                description='Use `senpai help *category*` to find out more about them!\n')
-                cogs_desc = ''
-                for x in self.client.cogs:
-                    cogs_desc += ('{} - {}'.format(x,self.client.cogs[x].__doc__)+'\n')
-                halp.add_field(name='Categories',value=cogs_desc[0:len(cogs_desc)-1],inline=False)
-                cmds_desc = ''
-                for y in self.client.walk_commands():
-                    if not y.cog_name and not y.hidden:
-                        cmds_desc += ('{} - {}'.format(y.name,y.help)+'\n')
-                halp.add_field(name='Uncatergorized Commands',value=cmds_desc[0:len(cmds_desc)-1],inline=False)
-                await ctx.send('',embed=halp)
-            else:
-                """Helps me remind you if you pass too many args."""
-                if len(cog) > 1:
-                    halp = discord.Embed(title='Error!',description="You passed in too many parameters",color=discord.Color.red())
-                    await ctx.send('',embed=halp)
-                else:
-                    """Command listing within a cog."""
-                    found = False
-                    for x in self.client.cogs:
-                        for y in cog:
-                            x = (x.lower()).capitalize()
-                            y = (y.lower()).capitalize()
-                            if x == y:
-                                
-                                halp=discord.Embed(title=(cog[0].lower()).capitalize()+' Command Listing',description=self.client.cogs[(cog[0].lower()).capitalize()].__doc__)
-                                for c in self.client.get_cog(y).get_commands():
-                                    if not c.hidden:
-                                        halp.add_field(name=c.name,value=c.help,inline=False)
-                                found = True
-                    if not found:
-                        """Reminds you if that cog doesn't exist."""
-                        halp = discord.Embed(title='Error!',description='That category does not exist',color=discord.Color.red())
-                    else:
-                        await ctx.send('',embed=halp)
-        except OSError:
-            print("how")
-    
+
+
+        if isinstance(pageNumber,int) != True:
+            if pageNumber in ["convert", "convert unlaunchbg","convert dsmp4","convert video"]:
+                pageNumber = 1
+            elif pageNumber in ["github","github info","github latest", "github user"]:
+                pageNumber = 2
+            elif pageNumber in ["ping", "help","translate","google"]:
+                pageNumber = 3
+            elif pageNumber in ["dsindex","host","removebg"]:
+                pageNumber = 4
+            elif pageNumber in ["support"]:
+                pageNumber = 5
+            elif pageNumber in ["ios","ios jailbreak","ios tweak"]:
+                pageNumber = 6
+        
+        if pageNumber == None:
+            pageNumber = 1
+
+        pageNumber = int(pageNumber) - 1
+        start_time = time.time()
+        helpbox = await ctx.send("",embed=help_pages[pageNumber])
+        await helpbox.add_reaction("<:back:797052201431334912>")
+        await helpbox.add_reaction("<:stop:797089970845515806>")
+        await helpbox.add_reaction("<:forward:797052228182867968>")
+        escape = False
+        while time.time() - start_time < 30 and escape != True:
+            helpbox = await ctx.fetch_message(helpbox.id)
+            for reaction in helpbox.reactions:
+                if reaction.emoji.id == 797089970845515806:
+                    async for user in reaction.users():
+                        if user.id == ctx.author.id:
+                            await reaction.clear()
+                            escape = True
+                if reaction.emoji.id == 797052201431334912:
+                    async for user in reaction.users():
+                        if user.id == ctx.author.id:
+                            pageNumber = await page_backwards(self,helpbox,pageNumber,reaction,ctx.author)
+                            start_time = time.time()
+                if reaction.emoji.id == 797052228182867968:
+                    async for user in reaction.users():
+                        if user.id == ctx.author.id:
+                            pageNumber = await page_forwards(self,helpbox,pageNumber,reaction,ctx.author)
+                            start_time = time.time()
+        for reaction in helpbox.reactions:
+            if reaction.me:
+                await reaction.remove(self.client.user)
+
+        await helpbox.edit(content="This command has timed out - run s!help again")
+
+            
+
+
+
     @commands.command()
     async def translate(self, ctx, dstLang, *, string):
         """Translate using **Google Translate API**
@@ -108,6 +126,7 @@ class Utilities(commands.Cog):
         embed.add_field(name="Translated Language :", value=(googletrans.LANGUAGES[(dstLang).lower()]).capitalize(), inline=True)
         embed.add_field(name="Original :", value=string, inline=False)
         embed.add_field(name="Translated : ", value=translated[0], inline=True)
+        embed.set_footer(text="Powered by Google Translate!")
 
         if translated[2] != None:
             if string != translated[2]:
@@ -264,6 +283,72 @@ Original Guide : https://nightyoshi370.github.io/modding/ds-index""")
             await ctx.send("`Error, daily limit reached`")
             return
 
-      
+async def page_backwards(self,message_box,current_page_number,reaction_to_reset,user):
+    if current_page_number != 0:
+        current_page_number = current_page_number - 1
+    await message_box.edit(content=" .",embed=None)
+    await message_box.edit(embed=help_pages[current_page_number])
+    reaction_emoji = self.client.get_emoji(reaction_to_reset.emoji.id)
+    await reaction_to_reset.remove(user)
+    await message_box.add_reaction(reaction_emoji)
+    return current_page_number
+
+async def page_forwards(self,message_box,current_page_number,reaction_to_reset,user):
+    if current_page_number != 5:
+        current_page_number = current_page_number + 1
+    await message_box.edit(content=" .",embed=None)
+    await message_box.edit(embed=help_pages[current_page_number])
+    reaction_emoji = self.client.get_emoji(reaction_to_reset.emoji.id)
+    await reaction_to_reset.remove(user)
+    await message_box.add_reaction(reaction_emoji)
+    return current_page_number
+
+
+help_pages = [None,None,None,None,None,None]
+
+help_pages[0] = discord.Embed(title="Page 1 / 6", description="Convert related commands",color=0xeea4f2 )
+help_pages[0].set_author(name="Senpai Help Command")
+help_pages[0].add_field(name="convert unlaunchbg", value="`s!convert unlaunchbg {link}` \n Convert an image at `{link}` to an Unlaunch GIF file\nCan also send an attachment instead of link ", inline=False)
+help_pages[0].add_field(name="convert (format)", value="`s!convert {jpg|bmp|gif|png} {link}`\n Converts image at `{link}` to `{format}`", inline=False)
+help_pages[0].add_field(name="convert boxart", value="`s!convert boxart {console} {link}` \n Consoles : nds, ds, dsi, gba, gb, gbc, fds, nes, gen, md, sfc, ms, gg\n Converts image at `{link}` to `{console}` boxart\n Suitable for use with TWiLight Menu ++", inline=True)
+help_pages[0].add_field(name="convert dsmp4", value="`s!convert dsmp4 {link}`\n Converts video at `{link}` to MPEG4 player for use with Gericom's MPEGPLAYER DSi", inline=False)
+help_pages[0].add_field(name="convert video", value="`s!convert video {link}`\n Converts video at `{link}` to mp4", inline=False)
+help_pages[0].set_footer(text="Use the reactions below to change pages!")
+
+help_pages[1] = discord.Embed(title="Page 2 / 6", description="GitHub related commands",color=0xeea4f2 )
+help_pages[1].set_author(name="Senpai Help Command")
+help_pages[1].add_field(name="github info", value="`s!github info {Username/Repo}` \n Returns information about a GitHub repo ", inline=False)
+help_pages[1].add_field(name="github latest", value="`s!github latest {Username/Repo}`\n Returns link to latest release of repo", inline=False)
+help_pages[1].add_field(name="github user", value="`s!github user {Username}` \n Returns information about a GitHub user", inline=True)
+help_pages[1].set_footer(text="Use the reactions below to change pages!")
+
+help_pages[2] = discord.Embed(title="Page 3 / 6", description="Utilies Page 1",color=0xeea4f2 )
+help_pages[2].set_author(name="Senpai Help Command")
+help_pages[2].add_field(name="ping", value="`s!ping` \n Returns how long it takes to ping Discord", inline=False)
+help_pages[2].add_field(name="help", value="`s!help`\n Shows this command", inline=False)
+help_pages[2].add_field(name="translate", value="`s!translate {destination} {string}` \n Translates string into `{destination}` language", inline=True)
+help_pages[2].add_field(name="google", value="`s!google {string}`\n Teach people how to Google a `{string}`", inline=False)
+help_pages[2].set_footer(text="Use the reactions below to change pages!")
+
+help_pages[3] = discord.Embed(title="Page 4 / 6", description="Utilies Page 2",color=0xeea4f2 )
+help_pages[3].set_author(name="Senpai Help Command")
+help_pages[3].add_field(name="dsindex", value="`s!dsindex {search_query}` \n Searches for {search_query} in NightScript's DS Modding index", inline=False)
+help_pages[3].add_field(name="host", value="`s!host`\n Shows information about host running me", inline=False)
+help_pages[3].add_field(name="removebg BETA", value="`s!removebg {link}` \n Attempts to remove background of image at `{link}`", inline=True)
+help_pages[3].set_footer(text="Use the reactions below to change pages!")
+
+help_pages[4] = discord.Embed(title="Page 5 / 6", description="Support related commands",color=0xeea4f2 )
+help_pages[4].set_author(name="Senpai Help Command")
+help_pages[4].add_field(name="support", value="`s!support {root|writelock}` \n Returns saved support details", inline=False)
+help_pages[4].set_footer(text="Use the reactions below to change pages!")
+
+help_pages[5] = discord.Embed(title="Page 6 / 6", description="iOS",color=0xeea4f2 )
+help_pages[5].set_author(name="Senpai Help Command")
+help_pages[5].add_field(name="ios jailbreak", value="`s!jailbreak {device_model}` \n Returns link to ios.cfw.guide for device", inline=False)
+help_pages[5].add_field(name="ios tweak", value="`s!ios tweak {search_query}` \n Searches parcility for `{search_query}`", inline=False)
+help_pages[5].set_footer(text="Use the reactions below to change pages!")
+
+
 def setup(client):
     client.add_cog(Utilities(client))
+
