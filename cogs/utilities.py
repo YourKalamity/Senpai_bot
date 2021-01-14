@@ -146,6 +146,7 @@ class Utilities(commands.Cog):
             return
         if category == None:
             embed=discord.Embed(title="__NightScript's DS Modding index__", color=0xeea4f2 )
+            embed.set_thumbnail(url="https://nightyoshi370.github.io/assets/images/icon.png")
             text = """ 
             This is a command used to grab information from NightScript's DS Modding index, which can be found [here](https://nightyoshi370.github.io/modding/ds-index)""" 
             embed.add_field(name="Information : ", value=text, inline=False)
@@ -173,61 +174,98 @@ class Utilities(commands.Cog):
 
         counter = 0
         firstNumber = None
-        x = requests.get("https://raw.githubusercontent.com/NightYoshi370/nightyoshi370.github.io/master/pages/modding/ds-index.md").content
-        
-        with open("modding.txt", "wb") as theFile:
-            theFile.write(x)
-        with open("modding.txt","r",errors="ignore") as theFile:
-            data = theFile.readlines()
+        source_files = ["dsi-twl-firm.md","hardmod.md","homebrew.md","retail-roms.md","wifi.md"]
+        found = False
+        link = "https://raw.githubusercontent.com/DS-Homebrew/wiki/main/pages/_en-US/ds-index/"
+        while found == False:
+            for source in source_files:
+                x = requests.get(link+source).content
+                with open("downloads/modding_"+source+".txt", "wb") as theFile:
+                    theFile.write(x)
+                with open("downloads/modding_"+source+".txt","r",errors="ignore") as theFile:
+                    data = theFile.readlines()
 
-        for string in data:
-            if string.lower().rstrip("\n") ==("### "+category).lower():
-                hashNumber = 3
-                firstNumber = data.index(string)
-                break
-            elif string.lower().rstrip("\n")==("#### "+category).lower():
-                hashNumber = 4
-                firstNumber = data.index(string)
-                break
-            else:
-                continue
-        if firstNumber == None:
-            await ctx.send("Could not find `"+category+"` in NightScript's DS Modding index")
-            return   
+                if category == (source[:-3]).lower():
+                    hashNumber = 4
+                    firstNumber = 9
+                    found = True
+                    break
+                else:
+                    for string in data:
+                        if string.lower().rstrip("\n") ==("### "+category).lower():
+                            hashNumber = 3
+                            heading = string
+                            firstNumber = data.index(string)
+                            found = True
+                            break
+                        elif string.lower().rstrip("\n")==("#### "+category).lower():
+                            hashNumber = 4
+                            firstNumber = data.index(string)
+                            found = True
+                            break
+                        else:
+                            continue
+            if found == False and firstNumber == None:
+                await ctx.send("Could not find `"+category+"` in NightScript's DS modding index")
+                return
+
         counter = firstNumber + 1
-        
+        appended_string = ""
         fullText = ""
+        ordered_list_counter = 0
         if hashNumber == 3:
             while True:
-                if data[counter].startswith("### "):
+                if counter + 1 == len(data) or data[counter].startswith("### ") or data[counter].startswith("#### "):
                     break
-                fullText = fullText + data[counter]
+
+                appended_string = data[counter]
+                if data[counter].startswith("1. "):
+                    ordered_list_counter += 1
+                    appended_string = appended_string.replace("1",str(ordered_list_counter),1)
+                else:
+                    ordered_list_counter = 0
+
+                fullText = fullText + appended_string
                 counter = counter + 1
         if hashNumber == 4:
             while True:
-                if data[counter].startswith("### ") or data[counter].startswith("#### "):
+                if counter + 1 == len(data) or data[counter].startswith("#### "):
                     break
-                fullText = fullText + data[counter]
+                appended_string = data[counter]
+                if data[counter].startswith("1. "):
+                    ordered_list_counter += 1
+                    appended_string = appended_string.replace("1",str(ordered_list_counter),1)
+                elif data[counter].startswith("### "):
+                    ordered_list_counter = 0
+                    appended_string = "**" + appended_string[4:] + "**"
+                else:
+                    ordered_list_counter = 0
+                fullText = fullText + appended_string
                 counter = counter + 1
+                    
+
         if len(fullText) > 1000:
 
             fullText1, fullText2 = fullText[:len(fullText)//2], fullText[len(fullText)//2:] 
-            embed=discord.Embed(title="__NightScript's DS Modding index__", color=0xeea4f2 )
+            embed=discord.Embed(title="**NightScript's DS Modding index**", color=0xeea4f2 )
+            embed.set_thumbnail(url="https://nightyoshi370.github.io/assets/images/icon.png")
             embed.add_field(name=data[firstNumber], value=fullText1+" ...", inline=False)
-            embed.set_footer(text="""Credits to NightScript, RocketRobz and DeadSkullzJr for this guide
-Original Guide : https://nightyoshi370.github.io/modding/ds-index""")
+            embed.set_footer(text="""Credits to NightScript, EpicPkmn11, RocketRobz and DeadSkullzJr for this guide
+Original Guide : [https://wiki.ds-homebrew.com/ds-index/](https://wiki.ds-homebrew.com/ds-index/)""")
             embed2 = discord.Embed(title="__Continued__", color=0xeea4f2 )
+            embed2.set_thumbnail(url="https://nightyoshi370.github.io/assets/images/icon.png")
             embed2.add_field(name=(data[firstNumber]).rstrip("\n")+" (Continued)", value=fullText2, inline=False)
-            embed2.set_footer(text="""Credits to NightScript, RocketRobz and DeadSkullzJr for this guide
-Original Guide : https://nightyoshi370.github.io/modding/ds-index""")
+            embed2.set_footer(text="""Credits to NightScript, EpicPkmn11, RocketRobz and DeadSkullzJr for this guide
+Original Guide : [https://wiki.ds-homebrew.com/ds-index/](https://wiki.ds-homebrew.com/ds-index/)""")
             await ctx.send("",embed=embed)
             await ctx.send("",embed=embed2)
 
         else:
             embed=discord.Embed(title="__NightScript's DS Modding index__", color=0xeea4f2 )
+            embed.set_thumbnail(url="https://nightyoshi370.github.io/assets/images/icon.png")
             embed.add_field(name=data[firstNumber], value=fullText, inline=False)
-            embed.set_footer(text="""Credits to NightScript, RocketRobz and DeadSkullzJr for this guide
-Original Guide : https://nightyoshi370.github.io/modding/ds-index""")
+            embed.set_footer(text="""Credits to NightScript, EpicPkmn11, RocketRobz and DeadSkullzJr for this guide
+Original Guide : [https://wiki.ds-homebrew.com/ds-index/](https://wiki.ds-homebrew.com/ds-index/)""")
             await ctx.send("",embed=embed)
 
     @commands.command()

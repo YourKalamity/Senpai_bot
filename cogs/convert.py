@@ -120,7 +120,7 @@ class Convert(commands.Cog):
                     
                     await outputtext.edit(content="`Colour Mapping GIF...`")
 
-                    proc = Popen(["gifsicle",fileName,"-O3", "--no-extensions", "-k", "31" , "#0", "-o", fileName])
+                    proc = Popen(["gifsicle",fileName,"-O3", "--no-extensions", "-k", "24" , "#0", "-o", fileName])
                     ret_val = proc.wait()
                     await outputtext.edit(content="`GIF colour mapped...`")
 
@@ -151,7 +151,7 @@ class Convert(commands.Cog):
 
                             
                     await outputtext.edit(contents="`Uploading GIF...`")
-                    await ctx.send(file=discord.File(fileName))
+                    await ctx.send(file=discord.File(fileName),reference=ctx.message)
                     os.remove(fileName)
                     if oldFileExists:
                         os.remove(oldFileName)
@@ -210,7 +210,7 @@ class Convert(commands.Cog):
                         return
                     await outputtext.edit(content="`Converted to BMP`")
                     await outputtext.edit(content="`Uploading BMP...`")
-                    await ctx.send(file=discord.File(newFileName))
+                    await ctx.send(file=discord.File(newFileName),reference=ctx.message)
                     await outputtext.edit(content="`All done! Completed in "+str(round(time.time()-start_time,2))+" seconds`")
                     os.remove(fileName)
                     os.remove(newFileName)
@@ -267,7 +267,7 @@ class Convert(commands.Cog):
                         return
                     await outputtext.edit(content="`Converted to PNG`")
                     await outputtext.edit(content="`Uploading PNG...`")
-                    await ctx.send(file=discord.File(newFileName))
+                    await ctx.send(file=discord.File(newFileName),reference=ctx.message)
                     await outputtext.edit(content="`All done! Completed in "+str(round(time.time()-start_time,2))+" seconds`")
                     os.remove(fileName)
                     os.remove(newFileName)
@@ -323,7 +323,7 @@ class Convert(commands.Cog):
                         return
                     await outputtext.edit(content="`Converted to GIF`")
                     await outputtext.edit(content="`Uploading GIF...`")
-                    await ctx.send(file=discord.File(newFileName))
+                    await ctx.send(file=discord.File(newFileName),reference=ctx.message)
                     await outputtext.edit(content="`All done! Completed in "+str(round(time.time()-start_time,2))+" seconds`")
                     os.remove(fileName)
                     os.remove(newFileName)
@@ -379,7 +379,7 @@ class Convert(commands.Cog):
                         return
                     await outputtext.edit(content="`Converted to JPEG`")
                     await outputtext.edit(content="`Uploading JPEG...`")
-                    await ctx.send(file=discord.File(newFileName))
+                    await ctx.send(file=discord.File(newFileName),reference=ctx.message)
                     await outputtext.edit(content="`All done! Completed in "+str(round(time.time()-start_time,2))+" seconds`")
                     os.remove(fileName)
                     os.remove(newFileName)
@@ -449,7 +449,7 @@ class Convert(commands.Cog):
                     await outputtext.edit(content="`Failed to convert to PNG`")
                     return
                 await outputtext.edit(content="`Uploading boxart...`")
-                await ctx.send(file=discord.File(fileName))
+                await ctx.send(file=discord.File(fileName),reference=ctx.message)
                 await outputtext.edit(content="`All done! Completed in "+str(round(time.time()-start_time,2))+" seconds`")
                 os.remove(fileName)
                 return
@@ -509,7 +509,7 @@ class Convert(commands.Cog):
                     await outputtext.edit(content="`Failed to convert to PNG`")
                     return
                 await outputtext.edit(content="`Uploading boxart...`")
-                await ctx.send(file=discord.File(fileName))
+                await ctx.send(file=discord.File(fileName),reference=ctx.message)
                 await outputtext.edit(content="`All done! Completed in "+str(round(time.time()-start_time,2))+" seconds`")
                 os.remove(fileName)
                 return
@@ -569,7 +569,7 @@ class Convert(commands.Cog):
                     await outputtext.edit(content="`Failed to convert to PNG`")
                     return
                 await outputtext.edit(content="`Uploading boxart...`")
-                await ctx.send(file=discord.File(fileName))
+                await ctx.send(file=discord.File(fileName),reference=ctx.message)
                 await outputtext.edit(content="`All done! Completed in "+str(round(time.time()-start_time,2))+" seconds`")
                 os.remove(fileName)
                 return
@@ -629,7 +629,7 @@ class Convert(commands.Cog):
                     await outputtext.edit(content="`Failed to convert to PNG`")
                     return
                 await outputtext.edit(content="`Uploading boxart...`")
-                await ctx.send(file=discord.File(fileName))
+                await ctx.send(file=discord.File(fileName),reference=ctx.message)
                 await outputtext.edit(content="`All done! Completed in "+str(round(time.time()-start_time,2))+" seconds`")
                 os.remove(fileName)
                 return
@@ -699,7 +699,7 @@ class Convert(commands.Cog):
                         return
                 
                 await outputtext.edit(content="`Uploading DSi Menu image...`")
-                await ctx.send(file=discord.File(fileName))
+                await ctx.send(file=discord.File(fileName),reference=ctx.message)
                 await outputtext.edit(content="`All done! Completed in "+str(round(time.time()-start_time,2))+" seconds`")
                 os.remove(fileName)
                 return
@@ -740,9 +740,9 @@ class Convert(commands.Cog):
                     return
                 await outputtext.edit(content="`Converting video...`")
                 with open(os.devnull, "w") as devnull:
-                    output = subprocess.run(['ffmpeg','-y', '-i', fileName, '-f', 'mp4', '-s', '256x144', '-vf', 'colorspace=space=ycgco:primaries=bt709:trc=bt709:range=pc:iprimaries=bt709:iall=bt709', '-dst_range', "1", '-color_range', "2", '-vcodec', 'mpeg4', '-profile:v', "0", '-level', "8", '-b:v', "500000", '-acodec', 'aac', '-ar', "32000", '-b:a', "128000", '-ac', "1", '-slices', "1", '-g', "50", 'downloads/senpai_converted.mp4'],stdout=devnull)
+                    output = subprocess.run(['ffmpeg','-i', fileName, '-f', 'mp4','-vf', "fps=24000/1001, colorspace=space=ycgco:primaries=bt709:trc=bt709:range=pc:iprimaries=bt709:iall=bt709, scale=256:144", '-dst_range', "1", '-color_range', "2", '-vcodec', 'mpeg4', '-profile:v', "0", '-level', "8", "-q:v", "2", "-maxrate", "500k", "-acodec", "aac", "-ar", "32k", "-b:a","64000", "-ac", "1","-slices", "1","-g","50",'downloads/senpai_converted.mp4'],stdout=devnull)
                 if os.path.getsize("downloads/senpai_converted.mp4") < 8388119:
-                    await ctx.send(file=discord.File("downloads/senpai_converted.mp4"))    
+                    await ctx.send(file=discord.File("downloads/senpai_converted.mp4"),reference=ctx.message)    
                 else:
                     params = (
                         ('d', 'upload-tool'),
@@ -753,7 +753,7 @@ class Convert(commands.Cog):
                     }
                     response = requests.post('https://tmp.ninja/api.php', params=params, files=files)
                     await ctx.send("""Converted video link {hosted by `tmp.ninja`}
-                    """+response.content.decode("utf-8"))
+                    """+response.content.decode("utf-8"),reference=ctx.message)
                 os.remove("downloads/senpai_converted.mp4")
                 os.remove(fileName)
                 await outputtext.edit(content="`Done! Completed in "+str(round(time.time()-start_time,2))+" seconds`")
@@ -794,11 +794,11 @@ class Convert(commands.Cog):
                     return
                 await outputtext.edit(content="`Converting video...`")
                 with open(os.devnull, "w") as devnull:
-                    output = subprocess.run(['ffmpeg','-y', '-i', fileName, '-f', 'mp4', "-s","852x480", '-vf',"scale=640:trunc(ow/a/2)*2",'downloads/senpai_converted.mp4'],stdout=devnull)
-                
+                    output = subprocess.run(["ffmpeg","-y","-an","-i",fileName,"-vcodec", "libx264", "-pix_fmt", "yuv420p", "-profile:v", "baseline", "-level", "3","-s","852x480", '-vf',"scale=640:trunc(ow/a/2)*2","downloads/senpai_converted.mp4"],stdout=devnull)
+
                 await outputtext.edit(content="`Uploading Video...`")
                 if os.path.getsize("downloads/senpai_converted.mp4") < 8388119:
-                    await ctx.send(file=discord.File("downloads/senpai_converted.mp4"))    
+                    await ctx.send(file=discord.File("downloads/senpai_converted.mp4"),reference=ctx.message)    
                 else:
                     params = (
                         ('d', 'upload-tool'),
@@ -809,7 +809,7 @@ class Convert(commands.Cog):
                     }
                     response = requests.post('https://tmp.ninja/api.php', params=params, files=files)
                     await ctx.send("""Converted video link {hosted by `tmp.ninja`}
-                    """+response.content.decode("utf-8"))
+                    """+response.content.decode("utf-8"),reference=ctx.message)
                 os.remove("downloads/senpai_converted.mp4")
                 os.remove(fileName)
                 await outputtext.edit(content="`Done! Completed in "+str(round(time.time()-start_time,2))+" seconds`")

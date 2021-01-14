@@ -15,4 +15,3 @@ RPi.GPIO
 urllib3
 webencodings
 zalgo-text
-sqlite3
