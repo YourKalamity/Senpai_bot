@@ -332,7 +332,7 @@ async def page_backwards(self,message_box,current_page_number,reaction_to_reset,
     return current_page_number
 
 async def page_forwards(self,message_box,current_page_number,reaction_to_reset,user):
-    if current_page_number != 5:
+    if current_page_number != 6:
         current_page_number = current_page_number + 1
     await message_box.edit(content=" .",embed=None)
     await message_box.edit(embed=help_pages[current_page_number])
@@ -342,9 +342,9 @@ async def page_forwards(self,message_box,current_page_number,reaction_to_reset,u
     return current_page_number
 
 
-help_pages = [None,None,None,None,None,None]
+help_pages = [None,None,None,None,None,None,None]
 
-help_pages[0] = discord.Embed(title="Page 1 / 6", description="Convert related commands",color=0xeea4f2 )
+help_pages[0] = discord.Embed(title="Page 1 / 7", description="Convert related commands",color=0xeea4f2 )
 help_pages[0].set_author(name="Senpai Help Command")
 help_pages[0].add_field(name="convert unlaunchbg", value="`s!convert unlaunchbg {link}` \n Convert an image at `{link}` to an Unlaunch GIF file\nCan also send an attachment instead of link ", inline=False)
 help_pages[0].add_field(name="convert (format)", value="`s!convert {jpg|bmp|gif|png} {link}`\n Converts image at `{link}` to `{format}`", inline=False)
@@ -353,38 +353,47 @@ help_pages[0].add_field(name="convert dsmp4", value="`s!convert dsmp4 {link}`\n 
 help_pages[0].add_field(name="convert video", value="`s!convert video {link}`\n Converts video at `{link}` to mp4", inline=False)
 help_pages[0].set_footer(text="Use the reactions below to change pages!")
 
-help_pages[1] = discord.Embed(title="Page 2 / 6", description="GitHub related commands",color=0xeea4f2 )
+help_pages[1] = discord.Embed(title="Page 2 / 7", description="GitHub related commands",color=0xeea4f2 )
 help_pages[1].set_author(name="Senpai Help Command")
 help_pages[1].add_field(name="github info", value="`s!github info {Username/Repo}` \n Returns information about a GitHub repo ", inline=False)
 help_pages[1].add_field(name="github latest", value="`s!github latest {Username/Repo}`\n Returns link to latest release of repo", inline=False)
 help_pages[1].add_field(name="github user", value="`s!github user {Username}` \n Returns information about a GitHub user", inline=True)
 help_pages[1].set_footer(text="Use the reactions below to change pages!")
 
-help_pages[2] = discord.Embed(title="Page 3 / 6", description="Utilies Page 1",color=0xeea4f2 )
+help_pages[2] = discord.Embed(title="Page 3 / 7", description="Fun commands",color=0xeea4f2 )
 help_pages[2].set_author(name="Senpai Help Command")
-help_pages[2].add_field(name="ping", value="`s!ping` \n Returns how long it takes to ping Discord", inline=False)
-help_pages[2].add_field(name="help", value="`s!help`\n Shows this command", inline=False)
-help_pages[2].add_field(name="translate", value="`s!translate {destination} {string}` \n Translates string into `{destination}` language", inline=True)
-help_pages[2].add_field(name="google", value="`s!google {string}`\n Teach people how to Google a `{string}`", inline=False)
+help_pages[2].add_field(name="slap", value="`s!slap {someone}` \n Slap someone! ", inline=True)
+help_pages[2].add_field(name="hug", value="`s!hug {someone}`\n Hug someone!", inline=True)
+help_pages[2].add_field(name="pat", value="`s!pat {someone}` \n Give someone a headpat!", inline=True)
+help_pages[2].add_field(name="notice", value="`s!notice {someone}` \n Get senpai to finally notice you or someone else!", inline=True)
+help_pages[2].add_field(name="zalgofy", value="`s!zalgofy {string}` \n Turns strings into s̰̈́͟t̪̉͘r̯̳͝i̮̅́n̻ͣ̅ģ̼͢ş̙̂", inline=True)
 help_pages[2].set_footer(text="Use the reactions below to change pages!")
 
-help_pages[3] = discord.Embed(title="Page 4 / 6", description="Utilies Page 2",color=0xeea4f2 )
+help_pages[3] = discord.Embed(title="Page 4 / 7", description="Utilies Page 1",color=0xeea4f2 )
 help_pages[3].set_author(name="Senpai Help Command")
-help_pages[3].add_field(name="dsindex", value="`s!dsindex {search_query}` \n Searches for {search_query} in NightScript's DS Modding index", inline=False)
-help_pages[3].add_field(name="host", value="`s!host`\n Shows information about host running me", inline=False)
-help_pages[3].add_field(name="removebg BETA", value="`s!removebg {link}` \n Attempts to remove background of image at `{link}`", inline=True)
+help_pages[3].add_field(name="ping", value="`s!ping` \n Returns how long it takes to ping Discord", inline=False)
+help_pages[3].add_field(name="help", value="`s!help`\n Shows this command", inline=False)
+help_pages[3].add_field(name="translate", value="`s!translate {destination} {string}` \n Translates string into `{destination}` language", inline=True)
+help_pages[3].add_field(name="google", value="`s!google {string}`\n Teach people how to Google a `{string}`", inline=False)
 help_pages[3].set_footer(text="Use the reactions below to change pages!")
 
-help_pages[4] = discord.Embed(title="Page 5 / 6", description="Support related commands",color=0xeea4f2 )
+help_pages[4] = discord.Embed(title="Page 5 / 7", description="Utilies Page 2",color=0xeea4f2 )
 help_pages[4].set_author(name="Senpai Help Command")
-help_pages[4].add_field(name="support", value="`s!support {root|writelock}` \n Returns saved support details", inline=False)
+help_pages[4].add_field(name="dsindex", value="`s!dsindex {search_query}` \n Searches for {search_query} in NightScript's DS Modding index", inline=False)
+help_pages[4].add_field(name="host", value="`s!host`\n Shows information about host running me", inline=False)
+help_pages[4].add_field(name="removebg BETA", value="`s!removebg {link}` \n Attempts to remove background of image at `{link}`", inline=True)
 help_pages[4].set_footer(text="Use the reactions below to change pages!")
 
-help_pages[5] = discord.Embed(title="Page 6 / 6", description="iOS",color=0xeea4f2 )
+help_pages[5] = discord.Embed(title="Page 6 / 7", description="Support related commands",color=0xeea4f2 )
 help_pages[5].set_author(name="Senpai Help Command")
-help_pages[5].add_field(name="ios jailbreak", value="`s!jailbreak {device_model}` \n Returns link to ios.cfw.guide for device", inline=False)
-help_pages[5].add_field(name="ios tweak", value="`s!ios tweak {search_query}` \n Searches parcility for `{search_query}`", inline=False)
+help_pages[5].add_field(name="support", value="`s!support {root|writelock}` \n Returns saved support details", inline=False)
 help_pages[5].set_footer(text="Use the reactions below to change pages!")
+
+help_pages[6] = discord.Embed(title="Page 7 / 7", description="iOS",color=0xeea4f2 )
+help_pages[6].set_author(name="Senpai Help Command")
+help_pages[6].add_field(name="ios jailbreak", value="`s!jailbreak {device_model}` \n Returns link to ios.cfw.guide for device", inline=False)
+help_pages[6].add_field(name="ios tweak", value="`s!ios tweak {search_query}` \n Searches parcility for `{search_query}`", inline=False)
+help_pages[6].set_footer(text="Use the reactions below to change pages!")
 
 
 def setup(client):
