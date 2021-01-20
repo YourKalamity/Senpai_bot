@@ -80,12 +80,12 @@ class Utilities(commands.Cog):
                 if reaction.emoji.id == 797052201431334912:
                     async for user in reaction.users():
                         if user.id == ctx.author.id:
-                            pageNumber = await page_backwards(self,helpbox,pageNumber,reaction,ctx.author)
+                            pageNumber = await page_backwards(self,helpbox,pageNumber,reaction,ctx.author,help_pages)
                             start_time = time.time()
                 if reaction.emoji.id == 797052228182867968:
                     async for user in reaction.users():
                         if user.id == ctx.author.id:
-                            pageNumber = await page_forwards(self,helpbox,pageNumber,reaction,ctx.author)
+                            pageNumber = await page_forwards(self,helpbox,pageNumber,reaction,ctx.author,help_pages)
                             start_time = time.time()
         for reaction in helpbox.reactions:
             if reaction.me:
@@ -174,99 +174,117 @@ class Utilities(commands.Cog):
 
         counter = 0
         firstNumber = None
-        source_files = ["dsi-twl-firm.md","hardmod.md","homebrew.md","retail-roms.md","wifi.md"]
+        source_files = ["dsi-twl-firm.md","homebrew.md","retail-roms.md","wifi.md"]
         found = False
         link = "https://raw.githubusercontent.com/DS-Homebrew/wiki/main/pages/_en-US/ds-index/"
+        search = category.lower()
+
         while found == False:
-            for source in source_files:
+            for file_count, source in enumerate(source_files):
                 x = requests.get(link+source).content
-                with open("downloads/modding_"+source+".txt", "wb") as theFile:
+                with open("downloads/modding_"+source+".txt","wb") as theFile:
                     theFile.write(x)
                 with open("downloads/modding_"+source+".txt","r",errors="ignore") as theFile:
                     data = theFile.readlines()
-
-                if category == (source[:-3]).lower():
+                if search == (source[:-3]).lower():
                     hashNumber = 4
                     firstNumber = 9
+                    heading = source[:-3]
                     found = True
+                    f_count = file_count
                     break
                 else:
-                    for string in data:
-                        if string.lower().rstrip("\n") ==("### "+category).lower():
+                    for count, string in enumerate(data):
+                        if string.lower().rstrip("\n") == ("### "+search):
                             hashNumber = 3
                             heading = string
-                            firstNumber = data.index(string)
+                            firstNumber = count
                             found = True
+                            f_count = file_count
                             break
-                        elif string.lower().rstrip("\n")==("#### "+category).lower():
+                        elif string.lower().rstrip("\n")==("#### "+search):
                             hashNumber = 4
-                            firstNumber = data.index(string)
+                            heading = string
+                            firstNumber = count
                             found = True
+                            f_count = file_count
                             break
                         else:
                             continue
             if found == False and firstNumber == None:
-                await ctx.send("Could not find `"+category+"` in NightScript's DS modding index")
+                print("Couldn't find that!")
                 return
 
         counter = firstNumber + 1
         appended_string = ""
         fullText = ""
         ordered_list_counter = 0
+        end = False
+
+        with open("downloads/modding_"+source_files[f_count]+".txt","r",errors="ignore") as theFile:
+            data = theFile.readlines()
+        
         if hashNumber == 3:
-            while True:
+            while end == False:
                 if counter + 1 == len(data) or data[counter].startswith("### ") or data[counter].startswith("#### "):
-                    break
-
-                appended_string = data[counter]
-                if data[counter].startswith("1. "):
-                    ordered_list_counter += 1
-                    appended_string = appended_string.replace("1",str(ordered_list_counter),1)
+                    end = True
                 else:
-                    ordered_list_counter = 0
-
-                fullText = fullText + appended_string
-                counter = counter + 1
+                    appended_string = data[counter]
+                    if data[counter].startswith("1. "):
+                        ordered_list_counter += 1
+                        appended_string = appended_string.replace("1",str(ordered_list_counter),1)
+                    else:
+                        ordered_list_counter = 0
+                    fullText = fullText + appended_string
+                    counter += 1
         if hashNumber == 4:
-            while True:
+            while end == False:
                 if counter + 1 == len(data) or data[counter].startswith("#### "):
-                    break
-                appended_string = data[counter]
-                if data[counter].startswith("1. "):
-                    ordered_list_counter += 1
-                    appended_string = appended_string.replace("1",str(ordered_list_counter),1)
-                elif data[counter].startswith("### "):
-                    ordered_list_counter = 0
-                    appended_string = "**" + appended_string[4:] + "**"
+                    end = True
                 else:
-                    ordered_list_counter = 0
-                fullText = fullText + appended_string
-                counter = counter + 1
-                    
+                    appended_string = data[counter]
+                    if data[counter].startswith("1. "):
+                        ordered_list_counter += 1
+                        appended_string = appended_string.replace("1",str(ordered_list_counter),1)
+                    else:
+                        ordered_list_counter = 0
 
-        if len(fullText) > 1000:
+                    fullText = fullText + appended_string
+                    counter += 1
 
-            fullText1, fullText2 = fullText[:len(fullText)//2], fullText[len(fullText)//2:] 
-            embed=discord.Embed(title="**NightScript's DS Modding index**", color=0xeea4f2 )
-            embed.set_thumbnail(url="https://nightyoshi370.github.io/assets/images/icon.png")
-            embed.add_field(name=data[firstNumber], value=fullText1+" ...", inline=False)
-            embed.set_footer(text="""Credits to NightScript, EpicPkmn11, RocketRobz and DeadSkullzJr for this guide
-Original Guide : [https://wiki.ds-homebrew.com/ds-index/](https://wiki.ds-homebrew.com/ds-index/)""")
-            embed2 = discord.Embed(title="__Continued__", color=0xeea4f2 )
-            embed2.set_thumbnail(url="https://nightyoshi370.github.io/assets/images/icon.png")
-            embed2.add_field(name=(data[firstNumber]).rstrip("\n")+" (Continued)", value=fullText2, inline=False)
-            embed2.set_footer(text="""Credits to NightScript, EpicPkmn11, RocketRobz and DeadSkullzJr for this guide
-Original Guide : [https://wiki.ds-homebrew.com/ds-index/](https://wiki.ds-homebrew.com/ds-index/)""")
-            await ctx.send("",embed=embed)
-            await ctx.send("",embed=embed2)
+        embed_list = dsindex_embed_generator(fullText,heading,link+source_files[f_count])
+        pageNumber = 0
+        start_time = time.time()
+        dsindexbox = await ctx.send("",embed=embed_list[pageNumber])
+        if len(embed_list) != 1:
+            await dsindexbox.add_reaction("<:back:797052201431334912>")
+            await dsindexbox.add_reaction("<:stop:797089970845515806>")
+            await dsindexbox.add_reaction("<:forward:797052228182867968>")
+            escape = False
+            while time.time() - start_time < 30 and escape != True:
+                dsindexbox = await ctx.fetch_message(dsindexbox.id)
+                for reaction in dsindexbox.reactions:
+                    if reaction.emoji.id == 797089970845515806:
+                        async for user in reaction.users():
+                            if user.id == ctx.author.id:
+                                await reaction.clear()
+                                escape = True
+                    if reaction.emoji.id == 797052201431334912:
+                        async for user in reaction.users():
+                            if user.id == ctx.author.id:
+                                pageNumber = await page_backwards(self,dsindexbox,pageNumber,reaction,ctx.author,embed_list)
+                                start_time = time.time()
+                    if reaction.emoji.id == 797052228182867968:
+                        async for user in reaction.users():
+                            if user.id == ctx.author.id:
+                                pageNumber = await page_forwards(self,dsindexbox,pageNumber,reaction,ctx.author,embed_list)
+                                start_time = time.time()
+            for reaction in dsindexbox.reactions:
+                if reaction.me:
+                    await reaction.remove(self.client.user)
 
-        else:
-            embed=discord.Embed(title="__NightScript's DS Modding index__", color=0xeea4f2 )
-            embed.set_thumbnail(url="https://nightyoshi370.github.io/assets/images/icon.png")
-            embed.add_field(name=data[firstNumber], value=fullText, inline=False)
-            embed.set_footer(text="""Credits to NightScript, EpicPkmn11, RocketRobz and DeadSkullzJr for this guide
-Original Guide : [https://wiki.ds-homebrew.com/ds-index/](https://wiki.ds-homebrew.com/ds-index/)""")
-            await ctx.send("",embed=embed)
+
+        
 
     @commands.command()
     async def host(self, ctx):
@@ -321,29 +339,43 @@ Original Guide : [https://wiki.ds-homebrew.com/ds-index/](https://wiki.ds-homebr
             await ctx.send("`Error, daily limit reached`")
             return
 
-async def page_backwards(self,message_box,current_page_number,reaction_to_reset,user):
+async def page_backwards(self,message_box,current_page_number,reaction_to_reset,user,list_of_embeds):
     if current_page_number != 0:
         current_page_number = current_page_number - 1
     await message_box.edit(content=" .",embed=None)
-    await message_box.edit(embed=help_pages[current_page_number])
+    await message_box.edit(embed=list_of_embeds[current_page_number])
     reaction_emoji = self.client.get_emoji(reaction_to_reset.emoji.id)
     await reaction_to_reset.remove(user)
     await message_box.add_reaction(reaction_emoji)
     return current_page_number
 
-async def page_forwards(self,message_box,current_page_number,reaction_to_reset,user):
-    if current_page_number != 6:
+async def page_forwards(self,message_box,current_page_number,reaction_to_reset,user,list_of_embeds):
+    if current_page_number != len(list_of_embeds)-1:
         current_page_number = current_page_number + 1
     await message_box.edit(content=" .",embed=None)
-    await message_box.edit(embed=help_pages[current_page_number])
+    await message_box.edit(embed=list_of_embeds[current_page_number])
     reaction_emoji = self.client.get_emoji(reaction_to_reset.emoji.id)
     await reaction_to_reset.remove(user)
     await message_box.add_reaction(reaction_emoji)
     return current_page_number
 
+def splitter(n, s):
+    pieces = s.split(" ")
+    return (" ".join(pieces[i:i+n]) for i in range(0, len(pieces), n))
+
+def dsindex_embed_generator(text,title,link):
+    split_data = splitter(100,text)
+    embeds = []
+
+    for count, section in enumerate(split_data):
+        embed = discord.Embed(title="__DS-Homebrew Nintendo DS index__", description=title,color=0xeea4f2,url=link)
+        embed.add_field(name=title,value=section,inline=False)
+        embed.add_field(name="Credits to:",value="NightScript, EpicPkmn11, RocketRobz and DeadSkullzJr",inline=False)
+        embed.set_footer(text="Use the reactions below to change pages!")
+        embeds.append(embed)
+    return embeds
 
 help_pages = [None,None,None,None,None,None,None]
-
 help_pages[0] = discord.Embed(title="Page 1 / 7", description="Convert related commands",color=0xeea4f2 )
 help_pages[0].set_author(name="Senpai Help Command")
 help_pages[0].add_field(name="convert unlaunchbg", value="`s!convert unlaunchbg {link}` \n Convert an image at `{link}` to an Unlaunch GIF file\nCan also send an attachment instead of link ", inline=False)

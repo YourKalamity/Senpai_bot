@@ -372,6 +372,7 @@ class Convert(commands.Cog):
                     await outputtext.edit(content="`Converting to JPEG...`")
                     newFileName = "senpai_converted_" + fileName + "_.jpeg"
                     try:
+                        
                         proc = Popen(["magick", "convert", fileName, newFileName])
                         ret_val = proc.wait()
                     except Exception:
@@ -437,6 +438,10 @@ class Convert(commands.Cog):
                     await outputtext.edit(content="`Converting to PNG...`")
                     oldFileName = fileName
                     fileName = "downloads/senpai_converted_" + fileName[10:] + "_.png"
+                    print(oldFileName)
+                    print(fileName)
+                    oldFileExists = True
+                
                     proc = Popen(["convert", oldFileName, fileName])
                     ret_val = proc.wait()
                     os.remove(oldFileName)
@@ -497,6 +502,10 @@ class Convert(commands.Cog):
                     await outputtext.edit(content="`Converting to PNG...`")
                     oldFileName = fileName
                     fileName = "downloads/senpai_converted_" + fileName[10:] + "_.png"
+                    print(oldFileName)
+                    print(fileName)
+                    oldFileExists = True
+                
                     proc = Popen(["convert", oldFileName, fileName])
                     ret_val = proc.wait()
                     os.remove(oldFileName)
@@ -557,6 +566,10 @@ class Convert(commands.Cog):
                     await outputtext.edit(content="`Converting to PNG...`")
                     oldFileName = fileName
                     fileName = "downloads/senpai_converted_" + fileName[10:] + "_.png"
+                    print(oldFileName)
+                    print(fileName)
+                    oldFileExists = True
+                
                     proc = Popen(["convert", oldFileName, fileName])
                     ret_val = proc.wait()
                     os.remove(oldFileName)
@@ -617,7 +630,10 @@ class Convert(commands.Cog):
                     await outputtext.edit(content="`Converting to PNG...`")
                     oldFileName = fileName
                     fileName = "downloads/senpai_converted_" + fileName[10:] + "_.png"
-                    proc = Popen(["convert", oldFileName, fileName])
+                    print(oldFileName)
+                    print(fileName)
+                    oldFileExists = True
+                
                     ret_val = proc.wait()
                     os.remove(oldFileName)
                     await outputtext.edit(content="`Converted to PNG`")

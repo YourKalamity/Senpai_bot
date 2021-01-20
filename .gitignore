@@ -9,3 +9,4 @@ cogs/__pycache__/
 *.pyc
 db/database.db
 .env
+cogs/private.py
