@@ -372,6 +372,7 @@ class Convert(commands.Cog):
                     await outputtext.edit(content="`Converting to JPEG...`")
                     newFileName = "senpai_converted_" + fileName + "_.jpeg"
                     try:
+                        
                         proc = Popen(["magick", "convert", fileName, newFileName])
                         ret_val = proc.wait()
                     except Exception:
@@ -437,6 +438,10 @@ class Convert(commands.Cog):
                     await outputtext.edit(content="`Converting to PNG...`")
                     oldFileName = fileName
                     fileName = "downloads/senpai_converted_" + fileName[10:] + "_.png"
+                    print(oldFileName)
+                    print(fileName)
+                    oldFileExists = True
+                
                     proc = Popen(["convert", oldFileName, fileName])
                     ret_val = proc.wait()
                     os.remove(oldFileName)
@@ -497,6 +502,10 @@ class Convert(commands.Cog):
                     await outputtext.edit(content="`Converting to PNG...`")
                     oldFileName = fileName
                     fileName = "downloads/senpai_converted_" + fileName[10:] + "_.png"
+                    print(oldFileName)
+                    print(fileName)
+                    oldFileExists = True
+                
                     proc = Popen(["convert", oldFileName, fileName])
                     ret_val = proc.wait()
                     os.remove(oldFileName)
@@ -557,6 +566,10 @@ class Convert(commands.Cog):
                     await outputtext.edit(content="`Converting to PNG...`")
                     oldFileName = fileName
                     fileName = "downloads/senpai_converted_" + fileName[10:] + "_.png"
+                    print(oldFileName)
+                    print(fileName)
+                    oldFileExists = True
+                
                     proc = Popen(["convert", oldFileName, fileName])
                     ret_val = proc.wait()
                     os.remove(oldFileName)
@@ -617,7 +630,10 @@ class Convert(commands.Cog):
                     await outputtext.edit(content="`Converting to PNG...`")
                     oldFileName = fileName
                     fileName = "downloads/senpai_converted_" + fileName[10:] + "_.png"
-                    proc = Popen(["convert", oldFileName, fileName])
+                    print(oldFileName)
+                    print(fileName)
+                    oldFileExists = True
+                
                     ret_val = proc.wait()
                     os.remove(oldFileName)
                     await outputtext.edit(content="`Converted to PNG`")
@@ -740,7 +756,7 @@ class Convert(commands.Cog):
                     return
                 await outputtext.edit(content="`Converting video...`")
                 with open(os.devnull, "w") as devnull:
-                    output = subprocess.run(['ffmpeg','-y', '-i', fileName, '-f', 'mp4', '-s', '256x144', '-vf', 'colorspace=space=ycgco:primaries=bt709:trc=bt709:range=pc:iprimaries=bt709:iall=bt709', '-dst_range', "1", '-color_range', "2", '-vcodec', 'mpeg4', '-profile:v', "0", '-level', "8", '-b:v', "500000", '-acodec', 'aac', '-ar', "32000", '-b:a', "128000", '-ac', "1", '-slices', "1", '-g', "50", 'downloads/senpai_converted.mp4'],stdout=devnull)
+                    output = subprocess.run(['ffmpeg','-i', fileName, '-f', 'mp4','-vf', "fps=24000/1001, colorspace=space=ycgco:primaries=bt709:trc=bt709:range=pc:iprimaries=bt709:iall=bt709, scale=256:144", '-dst_range', "1", '-color_range', "2", '-vcodec', 'mpeg4', '-profile:v', "0", '-level', "8", "-q:v", "2", "-maxrate", "500k", "-acodec", "aac", "-ar", "32k", "-b:a","64000", "-ac", "1","-slices", "1","-g","50",'downloads/senpai_converted.mp4'],stdout=devnull)
                 if os.path.getsize("downloads/senpai_converted.mp4") < 8388119:
                     await ctx.send(file=discord.File("downloads/senpai_converted.mp4"),reference=ctx.message)    
                 else:
@@ -794,8 +810,8 @@ class Convert(commands.Cog):
                     return
                 await outputtext.edit(content="`Converting video...`")
                 with open(os.devnull, "w") as devnull:
-                    output = subprocess.run(['ffmpeg','-y', '-i', fileName, '-f', 'mp4', "-s","852x480", '-vf',"scale=640:trunc(ow/a/2)*2",'downloads/senpai_converted.mp4'],stdout=devnull)
-                
+                    output = subprocess.run(["ffmpeg","-y","-an","-i",fileName,"-vcodec", "libx264", "-pix_fmt", "yuv420p", "-profile:v", "baseline", "-level", "3","-s","852x480", '-vf',"scale=640:trunc(ow/a/2)*2","downloads/senpai_converted.mp4"],stdout=devnull)
+
                 await outputtext.edit(content="`Uploading Video...`")
                 if os.path.getsize("downloads/senpai_converted.mp4") < 8388119:
                     await ctx.send(file=discord.File("downloads/senpai_converted.mp4"),reference=ctx.message)    
